@@ -7,39 +7,30 @@ def isMoveLeft(board):
                 return True
     return False
 
-def evaluate(board):
+def checkForWin(board, player):
+    winning_states = [[board[row][0], board[row][1], board[row][2]]
+                      for row in range(3)]
+    winning_states += [[board[0][col], board[1][col], board[2][col]]
+                       for col in range(3)]
+    winning_states += [[board[0][0], board[1][1], board[2][2]]]
+    winning_states += [[board[2][0], board[1][1], board[0][2]]]
+
+    if [player, player, player] in winning_states:
+        return True
+    return False
+
+def evaluate(board, player):
     val = 0
-    for row in range(3):
-        if board[row][0] == board[row][1] and board[row][1] == board[row][2]:
-            if board[row][0] == comp:
-                val = 10
-            elif board[row][0] == human:
-                val = -10
 
-    for col in range(3):
-        if board[0][col] == board[1][col] and board[1][col] == board[2][col]:
-            if board[0][col] == comp:
-                val = 10
-            elif board[0][col] == human:
-                val = -10
-
-    if board[0][0] == board[1][1] and board[1][1] == board[2][2]:
-        if board[0][0] == comp:
+    if (checkForWin(board, player)):
+        if player == comp:
             val = 10
-        elif board[0][0] == human:
+        elif player == human:
             val = -10
-
-    if board[0][2] == board[1][1] and board[1][1] == board[2][0]:
-        if board[2][0] == comp:
-            val = 10
-        elif board[2][0] == human:
-            val = -10
-
     return val
 
-
-def minmax(board, depth, isMax):
-    score = evaluate(board)
+def minmax(board, depth, isMax, player):
+    score = evaluate(board, player)
 
     if score == 10:
         return score
@@ -57,7 +48,7 @@ def minmax(board, depth, isMax):
             for j in range(3):
                 if board[i][j] == '_':
                     board[i][j] = comp
-                    best = max(best, minmax(board, depth + 1, not isMax))
+                    best = max(best, minmax(board, depth + 1, not isMax, comp))
                     board[i][j] = '_'
         return best
     else:
@@ -67,7 +58,7 @@ def minmax(board, depth, isMax):
             for j in range(3):
                 if board[i][j] == '_':
                     board[i][j] = human
-                    best = min(best, minmax(board, depth + 1, not isMax))
+                    best = min(best, minmax(board, depth + 1, not isMax, human))
                     board[i][j] = '_'
         return best
 
@@ -80,13 +71,12 @@ def findBestMove(board):
         for j in range(3):
             if board[i][j] == "_":
                 board[i][j] = comp
-                move_val = minmax(board, 0, False)
+                move_val = minmax(board, 0, False, comp)
                 board[i][j] = "_"
 
                 if move_val > best_val:
                     best_val = move_val
                     best_move = (i, j)
-    print(best_move)
     return best_move
 
 moves = {
@@ -106,18 +96,6 @@ def playHuman(board):
 
     return move
 
-def checkForWin(board, player):
-    winning_states = [[board[row][0], board[row][1], board[row][2]]
-                      for row in range(3)]
-    winning_states += [[board[0][col], board[1][col], board[2][col]]
-                       for col in range(3)]
-    winning_states += [[board[0][0], board[1][1], board[2][2]]]
-    winning_states += [[board[2][0], board[1][1], board[0][2]]]
-
-    if [player, player, player] in winning_states:
-        return True
-    return False
-
 def printBoard(board):
     for i in range(3):
         for j in range(3):
@@ -125,8 +103,7 @@ def printBoard(board):
         print()
 
 def playTTT():
-    # board = [['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
-    board = [['_','_','_'] for _ in range(3)]
+    board = [['_', '_', '_'], ['_', '_', '_'], ['_', '_', '_']]
     printBoard(board)
 
     no_moves = 0
